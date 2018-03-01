@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="TicketView">
+        <attr format="reference" name="tv_anchor1"/>
+        <attr format="reference" name="tv_anchor2"/>
+        <attr format="dimension" name="tv_circleRadius"/>
+    </declare-styleable>
+
+</resources>

@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Ticket Application</string>
+    <string name="action_settings">Settings</string>
+    <string name="code">Serial number: \n <font size='10'> 32000354</font></string>
+    <string name="price">Price: \n <font size='10'> 3,254,544</font></string>
+    <string name="dst_city"><b>Mashhad</b>\n<font size='10'>MHD</font></string>
+    <string name="src_city"><b>Bangkok</b>\n<font size='10'>BKKA</font></string>
+    <string name="date">01&#8211;03&#8211;2018</string>
+    <string name="name">Mohamad Reza Eram</string>
+</resources>

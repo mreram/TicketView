@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <bitmap
+            android:alpha="0.5"
+            android:src="@drawable/map_pattern"
+            android:tileMode="repeat"
+            xmlns:android="http://schemas.android.com/apk/res/android" />
+    </item>
+    <item>
+        <shape>
+            <solid android:color="#99eeeeee"/>
+        </shape>
+    </item>
+</layer-list>
