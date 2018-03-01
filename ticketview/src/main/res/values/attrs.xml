@@ -4,6 +4,10 @@
     <declare-styleable name="TicketView">
         <attr format="reference" name="tv_anchor1"/>
         <attr format="reference" name="tv_anchor2"/>
+
+        <attr format="color" name="tv_dashColor"/>
+        <attr format="dimension" name="tv_dashSize"/>
+        <attr format="dimension" name="tv_circleSpace"/>
         <attr format="dimension" name="tv_circleRadius"/>
     </declare-styleable>
 

@@ -9,7 +9,7 @@
     </item>
     <item>
         <shape>
-            <solid android:color="#99eeeeee"/>
+            <solid android:color="#99aaaaaa"/>
         </shape>
     </item>
 </layer-list>

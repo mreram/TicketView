@@ -12,6 +12,16 @@ import android.view.View
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.RelativeLayout
 import android.graphics.PorterDuffXfermode
+import android.renderscript.Allocation
+import android.renderscript.ScriptIntrinsicBlur
+import android.renderscript.RenderScript
+import android.graphics.Bitmap
+import android.graphics.Color.BLACK
+import android.graphics.Color.TRANSPARENT
+import android.os.Build
+import android.renderscript.Element
+import android.graphics.PorterDuffColorFilter
+import android.graphics.RectF
 
 
 /**
@@ -22,7 +32,7 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     : RelativeLayout(context, attrs, defStyleAttr) {
 
     companion object {
-        private val DEFAULT_RADIUS = 45
+        private val DEFAULT_RADIUS = 50
         private val NO_VALUE = -1
     }
 
@@ -39,16 +49,12 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     private var circlePosition2: Float = 0f
 
     private var circleRadius: Float = 0f
+    private var circleSpace: Float = 0f
+    private var dashColor: Int = 0
 
+    private var dashSize: Float = 0f
 
     init {
-
-        eraser.xfermode = PorterDuffXfermode(Mode.CLEAR)
-
-        dashPaint.color = Color.parseColor("#0085be")
-        dashPaint.style = Style.STROKE
-        dashPaint.strokeWidth = 3f
-        dashPaint.pathEffect = DashPathEffect(floatArrayOf(getDp(3f).toFloat(), getDp(3f).toFloat()), 0f)
 
 
         setLayerType(View.LAYER_TYPE_HARDWARE, null)
@@ -58,9 +64,19 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
             circleRadius = a.getDimension(R.styleable.TicketView_tv_circleRadius, DEFAULT_RADIUS.toFloat())
             anchorViewId1 = a.getResourceId(R.styleable.TicketView_tv_anchor1, NO_VALUE)
             anchorViewId2 = a.getResourceId(R.styleable.TicketView_tv_anchor2, NO_VALUE)
+            circleSpace = a.getDimension(R.styleable.TicketView_tv_circleSpace, 15f)
+            dashColor = a.getColor(R.styleable.TicketView_tv_dashColor, Color.parseColor("#0085be"))
+            dashSize = a.getDimension(R.styleable.TicketView_tv_dashSize, 3f)
         } finally {
             a.recycle()
         }
+
+        eraser.xfermode = PorterDuffXfermode(Mode.CLEAR)
+
+        dashPaint.color = dashColor
+        dashPaint.style = Style.STROKE
+        dashPaint.strokeWidth = dashSize
+        dashPaint.pathEffect = DashPathEffect(floatArrayOf(getDp(3f).toFloat(), getDp(3f).toFloat()), 0f)
     }
 
     fun setRadius(radius: Float) {
@@ -75,13 +91,14 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         offsetDescendantRectToMyCoords(view1, rect)
         circlePosition1 = rect.bottom.toFloat()
 
-        view2?.getDrawingRect(rect)
-        offsetDescendantRectToMyCoords(view2, rect)
-        circlePosition2 = rect.bottom.toFloat()
+        if (view2 != null) {
+            view2.getDrawingRect(rect)
+            offsetDescendantRectToMyCoords(view2, rect)
+            circlePosition2 = rect.bottom.toFloat()
+        }
 
         postInvalidate()
     }
-
 
     override fun drawChild(canvas: Canvas?, child: View?, drawingTime: Long): Boolean {
         val drawChild = super.drawChild(canvas, child, drawingTime)
@@ -97,24 +114,21 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        when {
-            anchorViewId1 != NO_VALUE || anchorViewId2 != NO_VALUE -> {
-                val anchorView1 = findViewById<View>(anchorViewId1)
-                val anchorView2 = findViewById<View>(anchorViewId2)
-                viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-                    override fun onGlobalLayout() {
-                        if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
-                            viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        } else {
-                            viewTreeObserver.removeGlobalOnLayoutListener(this)
-                        }
-                        setAnchor(anchorView1, anchorView2)
+        if (anchorViewId1 != NO_VALUE || anchorViewId2 != NO_VALUE) {
+            val anchorView1 = findViewById<View>(anchorViewId1)
+            val anchorView2 = findViewById<View>(anchorViewId2)
+            viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
+                        viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    } else {
+                        viewTreeObserver.removeGlobalOnLayoutListener(this)
                     }
-                })
-            }
+                    setAnchor(anchorView1, anchorView2)
+                }
+            })
         }
     }
-
 
     override fun onDraw(canvas: Canvas) {
         drawHoles(canvas)
@@ -124,7 +138,7 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     private fun drawHoles(canvas: Canvas) {
         val w = width
         val radius = circleRadius
-        val space = getDp(15f)
+        val space = circleSpace
         val circleWidth = radius * 2
 
         var leftMargin = 0
@@ -149,26 +163,37 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         }
 
         // add holes on the ticketView by erasing them
-        with(canvas) {
+        with(circlesPath) {
             //anchor1
-            drawCircle(-circleRadius / 4, circlePosition1, circleRadius, eraser) // bottom left hole
-            drawCircle(w + circleRadius / 4, circlePosition1, circleRadius, eraser)// bottom right hole
+            addCircle(-circleRadius / 4, circlePosition1, circleRadius, Path.Direction.CW) // bottom left hole
+            addCircle(w + circleRadius / 4, circlePosition1, circleRadius, Path.Direction.CW)// bottom right hole
+
             //anchor2
-            drawCircle(-circleRadius / 4, circlePosition2, circleRadius, eraser) // bottom left hole
-            drawCircle(w + circleRadius / 4, circlePosition2, circleRadius, eraser) // bottom right hole
+            when {
+                anchorViewId2 != NO_VALUE -> {
+                    addCircle(-circleRadius / 4, circlePosition2, circleRadius, Path.Direction.CW) // bottom left hole
+                    addCircle(w + circleRadius / 4, circlePosition2, circleRadius, Path.Direction.CW) // bottom right hole
+                }
+            }
         }
 
         with(dashPath) {
             //anchor1
             moveTo(circleRadius, circlePosition1)
             quadTo(w - circleRadius, circlePosition1, w - circleRadius, circlePosition1)
+
             //anchor2
-            moveTo(circleRadius, circlePosition2)
-            quadTo(w - circleRadius, circlePosition2, w - circleRadius, circlePosition2)
+            when {
+                anchorViewId2 != NO_VALUE -> {
+                    moveTo(circleRadius, circlePosition2)
+                    quadTo(w - circleRadius, circlePosition2, w - circleRadius, circlePosition2)
+                }
+            }
         }
 
         with(canvas) {
-            drawPath(dashPath, dashPaint)
+            if (dashSize > 0)
+                drawPath(dashPath, dashPaint)
             drawPath(circlesPath, eraser)
         }
     }

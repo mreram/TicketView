@@ -10,11 +10,14 @@
 
 
     <com.mreram.ticketview.TicketView
-        android:layout_width="match_parent"
+        android:layout_width ="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         app:tv_anchor1="@+id/cl_head"
         app:tv_anchor2="@+id/cl_center"
+        app:tv_circleSpace="15dp"
+        app:tv_dashSize="1.5dp"
+        app:tv_dashColor="@color/colorPrimary"
         app:tv_circleRadius="9dp">
 
         <android.support.constraint.ConstraintLayout
