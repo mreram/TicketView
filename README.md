@@ -21,6 +21,41 @@ A custom view for tickets
 
   </com.mreram.ticketview.TicketView>
 ```
+## Installation
+maven:
+
+	Step 1. Add the repository
+```xml
+<repositories>
+   <repository>
+     <id>jitpack.io</id>
+     <url>https://jitpack.io</url>
+   </repository>
+</repositories>
+```
+	Step 2. Add the dependency
+```xml
+<dependency>
+   <groupId>com.github.mreram</groupId>
+   <artifactId>ticketview</artifactId>
+   <version>1.0.0</version>
+</dependency>
+```
+gradle:
+	
+	Step 1. Add it in your root build.gradle at the end of repositories:
+```groovy	
+allprojects {
+	repositories {
+		...
+		maven { url 'https://jitpack.io' }
+	}
+}
+```	
+	Step 2. Add the dependency
+```groovy	
+compile 'compile 'com.github.mreram:ticketview:1.0.0'
+```
 
 ## Attributes
 
