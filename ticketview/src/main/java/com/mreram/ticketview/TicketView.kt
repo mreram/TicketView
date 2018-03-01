@@ -12,16 +12,7 @@ import android.view.View
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.RelativeLayout
 import android.graphics.PorterDuffXfermode
-import android.renderscript.Allocation
-import android.renderscript.ScriptIntrinsicBlur
-import android.renderscript.RenderScript
-import android.graphics.Bitmap
-import android.graphics.Color.BLACK
-import android.graphics.Color.TRANSPARENT
-import android.os.Build
-import android.renderscript.Element
-import android.graphics.PorterDuffColorFilter
-import android.graphics.RectF
+
 
 
 /**
@@ -32,41 +23,38 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     : RelativeLayout(context, attrs, defStyleAttr) {
 
     companion object {
-        private val DEFAULT_RADIUS = 50
+        private val DEFAULT_RADIUS: Float = 9f
         private val NO_VALUE = -1
     }
 
     private val eraser = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val dashPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-
-    private val dashPath = Path()
-
-    private val circlesPath = Path()
 
     private var anchorViewId1: Int = 0
     private var anchorViewId2: Int = 0
+
+    private var circlesPath = Path()
     private var circlePosition1: Float = 0f
     private var circlePosition2: Float = 0f
-
     private var circleRadius: Float = 0f
     private var circleSpace: Float = 0f
-    private var dashColor: Int = 0
 
+    private var dashColor: Int = 0
     private var dashSize: Float = 0f
+    private val dashPath = Path()
+    private val dashPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     init {
-
 
         setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
         val a = context.obtainStyledAttributes(attrs, R.styleable.TicketView)
         try {
-            circleRadius = a.getDimension(R.styleable.TicketView_tv_circleRadius, DEFAULT_RADIUS.toFloat())
+            circleRadius = a.getDimension(R.styleable.TicketView_tv_circleRadius, getDp(DEFAULT_RADIUS).toFloat())
             anchorViewId1 = a.getResourceId(R.styleable.TicketView_tv_anchor1, NO_VALUE)
             anchorViewId2 = a.getResourceId(R.styleable.TicketView_tv_anchor2, NO_VALUE)
-            circleSpace = a.getDimension(R.styleable.TicketView_tv_circleSpace, 15f)
+            circleSpace = a.getDimension(R.styleable.TicketView_tv_circleSpace, getDp(15f).toFloat())
             dashColor = a.getColor(R.styleable.TicketView_tv_dashColor, Color.parseColor("#0085be"))
-            dashSize = a.getDimension(R.styleable.TicketView_tv_dashSize, 3f)
+            dashSize = a.getDimension(R.styleable.TicketView_tv_dashSize, getDp(1.5f).toFloat())
         } finally {
             a.recycle()
         }
@@ -136,6 +124,7 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     private fun drawHoles(canvas: Canvas) {
+        circlesPath = Path()
         val w = width
         val radius = circleRadius
         val space = circleSpace
@@ -154,7 +143,7 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         val sideOffset = offset / 2
         val halfCircleSpace = circleSpace / 2
 
-        for (i in 0..count) {
+        for (i in 0 until count) {
             var positionCircle = i * circleSpace + sideOffset + left.toFloat() - radius
             if (i == 0) {
                 positionCircle = left + sideOffset - radius
