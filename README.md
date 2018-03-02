@@ -1,5 +1,9 @@
 # TicketView
 A custom view for tickets
+[![API](https://img.shields.io/badge/API-14%2B-red.svg?style=flat)](https://android-arsenal.com/api?level=14)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+
 
 <p align="center">
 <img src="./ticket_sc1.png" width="400"/>
@@ -54,7 +58,7 @@ allprojects {
 ```	
 	Step 2. Add the dependency
 ```groovy	
-compile 'compile 'com.github.mreram:ticketview:1.0.0'
+compile 'com.github.mreram:ticketview:1.0.0'
 ```
 
 ## Attributes
