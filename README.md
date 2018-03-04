@@ -1,5 +1,6 @@
 # TicketView
-A custom view for tickets
+:ticket: A custom view for showing tickets
+
 [![API](https://img.shields.io/badge/API-14%2B-red.svg?style=flat)](https://android-arsenal.com/api?level=14)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
