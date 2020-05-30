@@ -11,7 +11,7 @@
 </p>
 
 ## How to use:question:
-  ```
+  ```xml
   <com.mreram.ticketview.TicketView
         android:layout_width ="match_parent"
         android:layout_height="wrap_content"
