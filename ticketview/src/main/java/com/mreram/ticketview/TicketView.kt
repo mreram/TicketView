@@ -14,44 +14,37 @@ import android.widget.RelativeLayout
 import android.graphics.PorterDuffXfermode
 
 
-
 /**
  * Created by Mohammad Reza Eram on 2/23/18.
  */
 
 class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
     : RelativeLayout(context, attrs, defStyleAttr) {
-
+    private  var mContext:Context = context;
     companion object {
         private val DEFAULT_RADIUS: Float = 9f
-        private val NO_VALUE = -1
     }
 
     private val eraser = Paint(Paint.ANTI_ALIAS_FLAG)
-
-    private var anchorViewId1: Int = 0
-    private var anchorViewId2: Int = 0
-
     private var circlesPath = Path()
-    private var circlePosition1: Float = 0f
-    private var circlePosition2: Float = 0f
     private var circleRadius: Float = 0f
     private var circleSpace: Float = 0f
-
+    private var enableSemiCircleOnTop:Boolean;
+    private var anchorIdsString:String?= null
+    private var circlePositions = mutableListOf<Float>()
     private var dashColor: Int = 0
     private var dashSize: Float = 0f
     private val dashPath = Path()
     private val dashPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     init {
-
         setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
         val a = context.obtainStyledAttributes(attrs, R.styleable.TicketView)
         try {
+            enableSemiCircleOnTop = a.getBoolean(R.styleable.TicketView_tv_enableSemiCircleOnTop,true)
             circleRadius = a.getDimension(R.styleable.TicketView_tv_circleRadius, getDp(DEFAULT_RADIUS).toFloat())
-            anchorViewId1 = a.getResourceId(R.styleable.TicketView_tv_anchor1, NO_VALUE)
-            anchorViewId2 = a.getResourceId(R.styleable.TicketView_tv_anchor2, NO_VALUE)
+            anchorIdsString = a.getString(R.styleable.TicketView_tv_anchors)
             circleSpace = a.getDimension(R.styleable.TicketView_tv_circleSpace, getDp(15f).toFloat())
             dashColor = a.getColor(R.styleable.TicketView_tv_dashColor, Color.parseColor("#0085be"))
             dashSize = a.getDimension(R.styleable.TicketView_tv_dashSize, getDp(1.5f).toFloat())
@@ -66,26 +59,37 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         dashPaint.strokeWidth = dashSize
         dashPaint.pathEffect = DashPathEffect(floatArrayOf(getDp(3f).toFloat(), getDp(3f).toFloat()), 0f)
     }
+     // parse views matching the names provided in the user applications under app:tv_anchors
+    private fun parseViews() {
+             val  rect = Rect()
+             anchorIdsString!!.split(",").iterator().forEach {
+                 val view = this.findViewById<View>(getResources().getIdentifier(it, "id", this.mContext.packageName))
+                 addCirclePosition(view, rect)
+
+             }
+     }
+
 
     fun setRadius(radius: Float) {
         this.circleRadius = radius
         postInvalidate()
     }
 
-    fun setAnchor(view1: View?, view2: View?) {
-
-        val rect = Rect()
-        view1?.getDrawingRect(rect)
-        offsetDescendantRectToMyCoords(view1, rect)
-        circlePosition1 = rect.bottom.toFloat()
-
-        if (view2 != null) {
-            view2.getDrawingRect(rect)
-            offsetDescendantRectToMyCoords(view2, rect)
-            circlePosition2 = rect.bottom.toFloat()
-        }
-
+    fun setAnchor() {
+        parseViews()
         postInvalidate()
+    }
+
+    // adds circlePosition to a  list.
+    private fun addCirclePosition(view: View?, rect: Rect) {
+        if (view == null) {
+            return
+        }
+            view.getDrawingRect(rect)
+            offsetDescendantRectToMyCoords(view, rect)
+            circlePositions.add(rect.bottom.toFloat());
+
+
     }
 
     override fun drawChild(canvas: Canvas?, child: View?, drawingTime: Long): Boolean {
@@ -102,9 +106,6 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        if (anchorViewId1 != NO_VALUE || anchorViewId2 != NO_VALUE) {
-            val anchorView1 = findViewById<View>(anchorViewId1)
-            val anchorView2 = findViewById<View>(anchorViewId2)
             viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
                 override fun onGlobalLayout() {
                     if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
@@ -112,10 +113,10 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
                     } else {
                         viewTreeObserver.removeGlobalOnLayoutListener(this)
                     }
-                    setAnchor(anchorView1, anchorView2)
+                    setAnchor()
                 }
             })
-        }
+
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -124,7 +125,7 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     private fun drawHoles(canvas: Canvas) {
-        circlesPath = Path()
+        this.circlesPath = Path()
         val w = width
         val radius = circleRadius
         val space = circleSpace
@@ -143,42 +144,18 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         val sideOffset = offset / 2
         val halfCircleSpace = circleSpace / 2
 
-        for (i in 0 until count) {
-            var positionCircle = i * circleSpace + sideOffset + left.toFloat() - radius
-            if (i == 0) {
-                positionCircle = left + sideOffset - radius
-            }
-            this.circlesPath.addCircle(positionCircle + halfCircleSpace, -circleRadius / 4, radius, Path.Direction.CW)
-        }
 
-        // add holes on the ticketView by erasing them
-        with(circlesPath) {
-            //anchor1
-            addCircle(-circleRadius / 4, circlePosition1, circleRadius, Path.Direction.CW) // bottom left hole
-            addCircle(w + circleRadius / 4, circlePosition1, circleRadius, Path.Direction.CW)// bottom right hole
-
-            //anchor2
-            when {
-                anchorViewId2 != NO_VALUE -> {
-                    addCircle(-circleRadius / 4, circlePosition2, circleRadius, Path.Direction.CW) // bottom left hole
-                    addCircle(w + circleRadius / 4, circlePosition2, circleRadius, Path.Direction.CW) // bottom right hole
+        if (enableSemiCircleOnTop){
+            for (i in 0 until count) {
+                var positionCircle = i * circleSpace + sideOffset + left.toFloat() - radius
+                if (i == 0) {
+                    positionCircle = left + sideOffset - radius
                 }
+                this.circlesPath.addCircle(positionCircle + halfCircleSpace, -circleRadius / 4, radius, Path.Direction.CW)
             }
-        }
 
-        with(dashPath) {
-            //anchor1
-            moveTo(circleRadius, circlePosition1)
-            quadTo(w - circleRadius, circlePosition1, w - circleRadius, circlePosition1)
-
-            //anchor2
-            when {
-                anchorViewId2 != NO_VALUE -> {
-                    moveTo(circleRadius, circlePosition2)
-                    quadTo(w - circleRadius, circlePosition2, w - circleRadius, circlePosition2)
-                }
-            }
         }
+        createCircleAndDashPath(w)
 
         with(canvas) {
             if (dashSize > 0)
@@ -186,6 +163,27 @@ class TicketView @JvmOverloads constructor(context: Context, attrs: AttributeSet
             drawPath(circlesPath, eraser)
         }
     }
+
+    private fun createCircleAndDashPath(width: Int) {
+
+        circlePositions.iterator().forEach {
+            with(circlesPath) {
+                // add path for the holes  on the ticketView by erasing them at an anchor
+                addCircle(-circleRadius / 4, it, circleRadius, Path.Direction.CW) // bottom left hole
+                addCircle(width + circleRadius / 4, it, circleRadius, Path.Direction.CW)// bottom right hole
+            }
+
+            with(dashPath) {
+                //adds path for the  dash  connecting the holes on left and right of an anchor .
+                moveTo(circleRadius, it)
+                quadTo(width - circleRadius, it, width - circleRadius, it)
+
+            }
+
+        }
+
+    }
+
 
 
     private fun getDp(value: Float): Int {

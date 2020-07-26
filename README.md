@@ -15,8 +15,8 @@
   <com.mreram.ticketview.TicketView
         android:layout_width ="match_parent"
         android:layout_height="wrap_content"
-        app:tv_anchor1="@+id/cl_head"
-        app:tv_anchor2="@+id/cl_center"
+        app:tv_anchors="cl_head,cl_center"
+        app:tv_enableSemiCircleOnTop="true"
         app:tv_circleSpace="15dp"
         app:tv_dashSize="1.5dp"
         app:tv_dashColor="@color/colorPrimary"
@@ -70,8 +70,8 @@ compile 'com.github.mreram:ticketview:1.0.0'
 | tv_dashSize(optional) | dash size |
 | tv_dashColor(optional) | dash color |
 | tv_circleSpace(optional) | space between top circles |
-| tv_anchor1 | determines where separator is drawn |
-| tv_anchor2(optional) | determines where separator is drawn |
+| tv_anchors(optional) | determines where separator is drawn |
+| tv_enableSemiCircleOnTop(default value = true) | determines whether bunch of semi circle drawn on start of TicketView |
 
 
 ## Contribution :collision:

@@ -2,27 +2,27 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cl"
+    android:id="@+id/cl_center"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_pattern"
-    android:padding="10dp"
-    tools:context="com.ticketview.mreram.sample.TicketActivity">
+    android:padding="10dp">
 
 
-    <com.ticketview.mreram.sample.TicketView
+    <com.mreram.ticketview.TicketView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        app:tv_anchor1="@+id/cl_head"
-        app:tv_anchor2="@+id/cl_center"
+        app:tv_enableSemiCircleOnTop="false"
+        app:tv_anchors=""
         app:tv_circleRadius="9dp">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_head"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_ticket_top">
+
 
             <TextView
                 android:id="@+id/txt_code"
@@ -62,9 +62,9 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -166,7 +166,7 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txt_name" />
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         <TextView
@@ -182,7 +182,7 @@
             android:textSize="10sp" />
 
 
-    </com.ticketview.mreram.sample.TicketView>
+    </com.mreram.ticketview.TicketView>
 
 
 </FrameLayout>

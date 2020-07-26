@@ -9,15 +9,15 @@
     >
 
 
-    <com.mreram.ticketview.TicketView
+     <com.mreram.ticketview.TicketView
         android:layout_width ="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        app:tv_anchor1="@+id/cl_head"
-        app:tv_anchor2="@+id/cl_center"
-   >
+         app:tv_anchors="cl_head,cl_center"
+         app:tv_dashColor="@color/colorAccent"
+         app:tv_enableSemiCircleOnTop="true">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_head"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -61,9 +61,9 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -108,6 +108,7 @@
             <View
                 android:layerType="software"
                 android:background="@drawable/divider_container"
+                android:visibility="invisible"
                 android:layout_width="0dp"
                 android:layout_height="5dp"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -151,6 +152,7 @@
                 app:layout_constraintTop_toBottomOf="@id/txt_dst" />
             <View
                 android:layerType="software"
+                android:visibility="invisible"
                 android:background="@drawable/divider_container"
                 android:layout_width="0dp"
                 android:layout_height="5dp"
@@ -165,7 +167,7 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txt_name" />
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         <TextView
